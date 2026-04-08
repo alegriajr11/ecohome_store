@@ -1,0 +1,22 @@
+const { Pool } = require("pg");
+const dotenv = require("dotenv");
+
+dotenv.config();
+
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 5432),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS
+});
+
+pool.on("connect", () => {
+  console.log(`[${new Date().toISOString()}] PostgreSQL pool connected`);
+});
+
+pool.on("error", (err) => {
+  console.error(`[${new Date().toISOString()}] PostgreSQL pool error`, err);
+});
+
+module.exports = pool;
