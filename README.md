@@ -160,3 +160,6 @@ curl -X DELETE http://localhost:3000/products/1 ^
 - `helmet` + `cors` habilitados.
 - Consultas SQL parametrizadas (`$1`, `$2`, ...).
 - Manejo de errores HTTP: `400`, `401`, `403`, `404`, `500`.
+
+## Evidencia automatizada (Actividades 1–3)
+En Git Bash / WSL / Linux: `chmod +x scripts/collect_evidence.sh && ./scripts/collect_evidence.sh` o `npm run collect-evidence`. Instrucciones y cURL manual: `scripts/README_evidence.md`.
