@@ -22,7 +22,19 @@ async function createUser({ username, email, passwordHash, role = "client" }) {
   return rows[0];
 }
 
+async function findUserById(id) {
+  const query = `
+    SELECT id, username, email, role, created_at
+    FROM users
+    WHERE id = $1
+    LIMIT 1
+  `;
+  const { rows } = await pool.query(query, [id]);
+  return rows[0] || null;
+}
+
 module.exports = {
   findUserByEmail,
+  findUserById,
   createUser
 };

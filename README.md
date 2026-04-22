@@ -70,7 +70,7 @@ ADMIN_SEED_PASSWORD=
 ## Scripts npm
 - `npm start`: inicia API con Node.
 - `npm run dev`: inicia API con nodemon.
-- `npm run migrate`: ejecuta `migrations/init.sql`.
+- `npm run migrate`: ejecuta todos los `.sql` en `migrations/` en orden (`init.sql` primero, luego `010_*.sql`, etc.).
 - `npm run seed`: crea usuario admin + productos demo.
 
 ## Migracion y seed (comandos exactos)

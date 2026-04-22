@@ -63,6 +63,25 @@ async function seed() {
       }
     }
 
+    // Productos de ejemplo (created_by = admin semilla)
+    const adminIdResult = await pool.query("SELECT id FROM users WHERE email = $1 LIMIT 1", [adminEmail]);
+    const adminId = adminIdResult.rows[0]?.id;
+
+    if (adminId) {
+      for (const p of sampleProducts) {
+        const exists = await pool.query("SELECT id FROM products WHERE name = $1 LIMIT 1", [p.name]);
+        if (exists.rowCount === 0) {
+          await pool.query(
+            "INSERT INTO products (name, price, created_by) VALUES ($1, $2, $3)",
+            [p.name, p.price, adminId]
+          );
+          console.log(
+            `[${new Date().toISOString()}] seed product_created name="${p.name}" created_by=${adminId}`
+          );
+        }
+      }
+    }
+
     // Create test messages for chat functionality
     const testMessages = [
       { user_id: 4, message: "¡Hola! Bienvenido al chat de EcoHome Store" },

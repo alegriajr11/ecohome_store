@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/auth");
 const productsRoutes = require("./routes/products");
 const messagesRoutes = require("./routes/messages");
+const usersRoutes = require("./routes/users");
 const errorHandler = require("./middleware/errorHandler");
 const { initializeSocket } = require("./sockets/socketHandler");
 
@@ -29,6 +30,8 @@ const io = new Server(server, {
   }
 });
 
+app.set("io", io);
+
 const PORT = Number(process.env.PORT || 3000);
 
 app.get("/health", (req, res) => {
@@ -42,6 +45,7 @@ app.get("/health", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/products", productsRoutes);
 app.use("/messages", messagesRoutes);
+app.use("/users", usersRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

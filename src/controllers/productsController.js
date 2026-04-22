@@ -1,8 +1,10 @@
 const productService = require("../services/productService");
+const userService = require("../services/userService");
 
 async function getProducts(req, res, next) {
   try {
-    const limit = Number(req.query.limit || 50);
+    // Límite por defecto 100 para que productos nuevos no queden fuera de la primera página.
+    const limit = Number(req.query.limit || 100);
     const offset = Number(req.query.offset || 0);
     const products = await productService.getProducts({ limit, offset });
     return res.status(200).json(products);
@@ -28,12 +30,43 @@ async function getProductById(req, res, next) {
 
 async function createProduct(req, res, next) {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "No autorizado" });
+    }
+
     const { name, price } = req.body;
-    const product = await productService.createProduct({ name, price });
+    const product = await productService.createProduct({
+      name,
+      price,
+      createdByUserId: userId
+    });
 
     console.log(
-      `[${new Date().toISOString()}] create_product user_id=${req.user.id} product_id=${product.id}`
+      `[${new Date().toISOString()}] create_product user_id=${userId} product_id=${product.id} created_by=${product.created_by}`
     );
+
+    const io = req.app.get("io");
+    if (io) {
+      const creatorUser = await userService.findUserById(userId);
+      const username = creatorUser?.username ?? req.user.email ?? "unknown";
+      const product_count = await productService.countProductsByCreatedBy(userId);
+
+      const flatProduct = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
+        created_by: product.created_by,
+        creator_id: product.creator?.id ?? userId,
+        creator_username: product.creator?.username ?? username,
+        creator: product.creator ?? { id: userId, username }
+      };
+
+      io.emit("product-created", { product: flatProduct });
+      io.emit("user-stats-updated", { userId, username, product_count });
+    }
 
     return res.status(201).json(product);
   } catch (error) {
